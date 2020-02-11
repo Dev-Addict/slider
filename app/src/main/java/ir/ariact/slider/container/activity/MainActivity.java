@@ -7,9 +7,11 @@ import androidx.viewpager.widget.ViewPager;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -27,8 +29,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ViewPager viewPager;
     PagerAdapter sliderAdapter;
     ImageView nextImageView, prevImageView;
+    Button stopAutoPlayButton;
 
     List<View> slides;
+    Handler autoPlayHandler;
+    Runnable runnable;
 
     @SuppressLint("ResourceType")
     @Override
@@ -71,19 +76,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         prevImageView = findViewById(R.id.activity_main_prev_image_view);
         nextImageView.setOnClickListener(this);
         prevImageView.setOnClickListener(this);
+        startAutoPlay(3000);
+        stopAutoPlayButton = findViewById(R.id.activity_main_stop_auto_play_button);
+        stopAutoPlayButton.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.activity_main_next_image_view:
-                viewPager.setCurrentItem((
-                        viewPager.getCurrentItem() + 1) % sliderAdapter.getCount());
+                goToNextPage();
                 break;
             case R.id.activity_main_prev_image_view:
-                viewPager.setCurrentItem((
-                        viewPager.getCurrentItem() + sliderAdapter.getCount() - 1) % sliderAdapter.getCount());
+                goToPervPage();
+                break;
+            case R.id.activity_main_stop_auto_play_button:
+                stopAutoPlay();
                 break;
         }
+    }
+
+    private void goToPervPage() {
+        viewPager.setCurrentItem((
+                viewPager.getCurrentItem() + sliderAdapter.getCount() - 1) % sliderAdapter.getCount());
+    }
+
+    private void goToNextPage() {
+        viewPager.setCurrentItem((
+                viewPager.getCurrentItem() + 1) % sliderAdapter.getCount());
+    }
+
+    private void goToNextPageAuto(final int miliSeconds) {
+        viewPager.setCurrentItem((
+                viewPager.getCurrentItem() + 1) % sliderAdapter.getCount());
+        autoPlayHandler.postDelayed(runnable, miliSeconds);
+    }
+
+    public void startAutoPlay(final int miliSeconds) {
+        autoPlayHandler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                goToNextPageAuto(miliSeconds);
+            }
+        };
+        autoPlayHandler.postDelayed(runnable, miliSeconds);
+    }
+
+    public void stopAutoPlay() {
+        autoPlayHandler.removeCallbacks(runnable);
     }
 }

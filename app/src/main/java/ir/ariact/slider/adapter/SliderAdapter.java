@@ -59,8 +59,4 @@ public class SliderAdapter extends PagerAdapter {
         View view = (View) object;
         viewPager.removeView(view);
     }
-
-    public void setAutoPlayEnabled(int miliSeconds) {
-
-    }
 }
